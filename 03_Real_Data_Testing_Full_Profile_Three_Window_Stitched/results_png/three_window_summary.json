@@ -1,0 +1,46 @@
+{
+  "windows": [
+    [
+      "W1: 0-10 km",
+      "0.0872",
+      "False",
+      "3.25 km",
+      "0.103",
+      "0.022",
+      "-1784",
+      "1.12 km"
+    ],
+    [
+      "W2: 10-20 km",
+      "0.2616",
+      "False",
+      "11.54 km",
+      "0.052",
+      "0.041",
+      "-2472",
+      "3.47 km"
+    ],
+    [
+      "W3: 20-30 km",
+      "0.2202",
+      "True",
+      "28.33 km",
+      "0.315",
+      "0.158",
+      "-1450",
+      "2.37 km"
+    ]
+  ],
+  "unified_metrics": {
+    "gravity_r2": 0.9650085988844682,
+    "gravity_rmse_mgal": 1.75561845434386,
+    "k_r2": 0.8832101459644411,
+    "u_r2": 0.8763832261034563,
+    "th_r2": 0.866312769087602
+  },
+  "limitations": [
+    "Each 10 km section has independent calibration and local model coordinates.",
+    "The stitched section is a unified interpretation, not a single globally coupled inversion.",
+    "Sharp discontinuities at 10 km and 20 km indicate boundary/calibration mismatch, not necessarily geology."
+  ]
+}

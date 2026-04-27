@@ -1,0 +1,46 @@
+{
+  "model": "quantum cubic regression",
+  "config": {
+    "n_points": 100,
+    "train_ratio": 0.8,
+    "seed": 84,
+    "alpha": 1e-05,
+    "data_path": "data/cubic_regression_data.csv",
+    "results_dir": "results"
+  },
+  "n_train": 80,
+  "n_test": 20,
+  "x_min": -1.4,
+  "x_max": 1.3717171717171714,
+  "weights": [
+    -0.7149045501637541,
+    1.2128871386313014,
+    0.19002831469532117,
+    1.7832968355032863,
+    -0.23055374857943783,
+    0.23133318179662776,
+    0.6080491170796885,
+    0.586190236019194,
+    0.7139960612532823,
+    0.4748713439015135,
+    -0.9284481541535138,
+    -0.3766611451014934,
+    -0.9681256037241678,
+    0.8586591935448048
+  ],
+  "train_metrics": {
+    "rmse": 0.08475610636383042,
+    "mae": 0.06619091794213043,
+    "r2": 0.9964672515641783
+  },
+  "test_metrics": {
+    "rmse": 0.10152111687856125,
+    "mae": 0.08185158018962567,
+    "r2": 0.9937709738651288
+  },
+  "outputs": {
+    "dataset": "data/cubic_regression_data.csv",
+    "plot": "results\\quantum_cubic_regression.png",
+    "model": "results\\quantum_cubic_model.npz"
+  }
+}

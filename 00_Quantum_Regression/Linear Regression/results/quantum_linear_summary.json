@@ -1,0 +1,35 @@
+{
+  "model": "quantum linear regression",
+  "config": {
+    "n_points": 100,
+    "train_ratio": 0.8,
+    "seed": 42,
+    "alpha": 1e-06,
+    "data_path": "data/linear_regression_data.csv",
+    "results_dir": "results"
+  },
+  "n_train": 80,
+  "n_test": 20,
+  "weights": [
+    -0.7331497027416483,
+    1.8325059854011472,
+    0.3224628576096794,
+    -0.3665320837887346,
+    0.43202879064109845
+  ],
+  "train_metrics": {
+    "rmse": 0.053334435819955006,
+    "mae": 0.0438054948323023,
+    "r2": 0.9974356234084654
+  },
+  "test_metrics": {
+    "rmse": 0.06561137853804014,
+    "mae": 0.05752643539504175,
+    "r2": 0.9960161907658218
+  },
+  "outputs": {
+    "dataset": "data/linear_regression_data.csv",
+    "plot": "results\\quantum_linear_regression.png",
+    "model": "results\\quantum_linear_model.npz"
+  }
+}

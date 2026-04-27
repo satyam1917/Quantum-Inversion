@@ -1,0 +1,90 @@
+{
+  "created_at": "2026-04-26 09:07:30",
+  "runtime_seconds": 559.6818132400513,
+  "config": {
+    "csv_path": "real_data/real_testing_data.csv",
+    "results_dir": "results",
+    "window_start_km": "auto",
+    "window_length_km": 10.0,
+    "auto_window_step_km": 0.5,
+    "trend_degree": 2,
+    "n_resample": 150,
+    "radio_smooth_window": 9,
+    "seed": 42,
+    "maxiter": 45,
+    "popsize": 9,
+    "mc_samples": 16,
+    "gravity_weight": 2.0,
+    "radio_weight": 0.35,
+    "allow_reverse": true,
+    "allow_negative_gravity_scale": true,
+    "allow_negative_radio_scale": true,
+    "use_realstyle_radio": true
+  },
+  "selected_window_km": [
+    0.0,
+    10.0
+  ],
+  "reverse_profile_for_model": false,
+  "best_loss": 0.048646056881653583,
+  "best_parameters": {
+    "fault_x_m": 1500.7551464957562,
+    "rho_dense_gcc": 0.2821864910798554,
+    "rho_basin_gcc": 0.03980400340558829,
+    "dense_top_m": -2252.9830295393444,
+    "radio_peak_x_m": 1626.0592022232952,
+    "radio_peak_width_m": 807.3547518642199,
+    "radio_peak_gain": 3.7504668239998584,
+    "radio_contact_width_m": 90.84876971797905
+  },
+  "mc_mean": {
+    "fault_x_m": 1580.4380916401753,
+    "rho_dense_gcc": 0.3135744796078885,
+    "rho_basin_gcc": 0.04379025395328195,
+    "dense_top_m": -2271.4412587785237,
+    "radio_peak_x_m": 1619.0221130037191,
+    "radio_peak_width_m": 824.0084336521443,
+    "radio_peak_gain": 3.5687632816207655,
+    "radio_contact_width_m": 107.26870125351638
+  },
+  "mc_std": {
+    "fault_x_m": 89.3098623190367,
+    "rho_dense_gcc": 0.08982395070690312,
+    "rho_basin_gcc": 0.013247795055226603,
+    "dense_top_m": 76.58425850359697,
+    "radio_peak_x_m": 158.06555608258327,
+    "radio_peak_width_m": 98.5177588723382,
+    "radio_peak_gain": 0.941302156423426,
+    "radio_contact_width_m": 37.15391122708088
+  },
+  "gravity_calibration": {
+    "scale": -0.05771934594876321,
+    "offset": 10.47735819186138,
+    "rmse": 1.267454657173736,
+    "r2": 0.9890386489353308,
+    "norm_mse": 0.010961351062858287
+  },
+  "radiometric_calibration": {
+    "K": {
+      "scale": 3.2337814083239595,
+      "offset": 0.22280865811688405,
+      "rmse": 0.23817134072069643,
+      "r2": 0.9510745175257174,
+      "norm_mse": 0.04892548238340817
+    },
+    "U": {
+      "scale": 7.032872018498038,
+      "offset": 0.4608528650965723,
+      "rmse": 0.6333471201188299,
+      "r2": 0.9285829716677213,
+      "norm_mse": 0.07141702827201016
+    },
+    "Th": {
+      "scale": 22.40133557900366,
+      "offset": 3.06082229114999,
+      "rmse": 2.5405543570965765,
+      "r2": 0.8912851841477397,
+      "norm_mse": 0.10871481582404177
+    }
+  }
+}
