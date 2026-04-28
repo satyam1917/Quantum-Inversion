@@ -82,6 +82,40 @@ This report presents a staged study on joint gravity and radiometric forward mod
 
 The synthetic inversion in Stage 1 recovered the principal model parameters with small relative errors: approximately 6.2\% for the fault position, 3.4\% for dense-body density contrast, 3.2\% for basin-density contrast, and 4.0\% for dense-body top depth. For the calibrated real-data inversion in Stage 2, the selected 0--10 km window gave a gravity fit of $R^2=0.989$ and RMSE $=1.267$ mGal. The corresponding radiometric fits for K, U, and Th gave $R^2=0.951$, $0.929$, and $0.891$, respectively. In Stage 3, the stitched full-profile interpretation gave a unified gravity fit of $R^2=0.965$ and RMSE $=1.756$ mGal, while the stitched K, U, and Th fits gave $R^2=0.883$, $0.876$, and $0.866$. These results show that a direct synthetic-to-field transfer is insufficient, whereas a calibrated and survey-aware formulation can produce quantitatively strong fits and geologically interpretable models.
 
+\clearpage
+\section*{Nomenclature}
+\addcontentsline{toc}{section}{Nomenclature}
+\begin{longtable}{p{0.22\textwidth}p{0.68\textwidth}}
+\toprule
+Symbol or term & Meaning \\
+\midrule
+\endhead
+$x$ & Horizontal distance along the survey profile, measured in km unless otherwise stated. \\
+$z$ & Elevation or depth coordinate. Negative values denote depth below the surface in the model sections. \\
+$G$ & Universal gravitational constant used in the gravity forward-model expression. \\
+$\Delta g_z$ & Vertical gravity anomaly produced by a subsurface density contrast. \\
+$g_{\mathrm{obs}}$ & Observed Bouguer or residual gravity value. \\
+$g_{\mathrm{reg}}$ & Regional gravity trend estimated from the full Bouguer profile. \\
+$g_{\mathrm{res}}$ & Residual gravity anomaly after regional-trend removal. \\
+$\Delta \rho$ & Density contrast relative to the background host rock. \\
+$\rho_d$ & Effective density contrast of the dense body. \\
+$\rho_b$ & Effective density contrast of the basin unit. \\
+$x_f$ & Fault position in model or global profile coordinates. \\
+$z_d$ & Dense-body top depth. \\
+K, U, Th & Radiometric potassium, uranium, and thorium channels. K is reported in percent, whereas U and Th are reported in ppm. \\
+$\mathbf{m}$ & Vector of unknown model parameters estimated during inversion. \\
+$\mathbf{F}(\mathbf{m})$ & Forward-model response predicted from a parameter vector. \\
+$\Phi(\mathbf{m})$ & Objective or loss function minimized during inversion. \\
+$R^2$ & Coefficient of determination used to measure goodness of fit. \\
+RMSE & Root mean square error between observed and predicted responses. \\
+LHS & Latin Hypercube Sampling, used to generate diverse initial parameter values. \\
+MC & Monte Carlo perturbation, used for uncertainty estimation. \\
+Qubit & Two-level quantum information unit. In this project, qubits are simulated classically. \\
+Feature map & Mapping from classical input variables to quantum expectation features. \\
+Variational ansatz & Parameterized quantum circuit whose trainable variables are optimized by a classical routine. \\
+\bottomrule
+\end{longtable}
+
 \section{Introduction}
 \subsection{Background}
 Geophysical inversion is the process of estimating subsurface physical parameters from observations recorded at or near the Earth's surface. In gravity surveying, the measured anomaly is produced by lateral and vertical variations in density. A positive density contrast generally increases the gravity response, whereas a low-density sedimentary basin or weathered zone generally reduces it. In radiometric surveying, the observed gamma-ray response is related primarily to the near-surface abundance of potassium (K), uranium (U), and thorium (Th). These two data types therefore provide complementary information. Gravity is sensitive to density variations at greater depth, whereas radiometric observations are much shallower and are strongly affected by surface composition, weathering, and soil cover.
@@ -104,6 +138,21 @@ The specific objectives of the study are as follows:
     \item to evaluate the strengths, limitations, and geological meaning of the recovered models.
 \end{enumerate}
 
+\subsection{Scope of the Study}
+The study is limited to profile-based forward modeling and inversion. The geological models are shown as two-dimensional sections, but the gravity calculation is treated in a 2.5D sense by assigning an effective out-of-plane extent. This choice is appropriate for a term project because it keeps the model physically interpretable while avoiding the excessive parameter count of full 3D inversion. The recovered sections should therefore be read as profile-scale models that explain the measured data, not as complete three-dimensional geological maps.
+
+The work also separates methodological validation from field interpretation. Stage 1 is a controlled experiment because the true model is known. Stages 2 and 3 are interpretive experiments because the real subsurface is unknown. In the real-data stages, the quality of a model is judged by data fit, geological plausibility, consistency of calibration, and stability of the recovered parameters. This distinction is important because a good numerical fit alone does not prove that the recovered geological model is unique.
+
+\subsection{Research Questions}
+The project was guided by the following questions:
+\begin{enumerate}
+    \item Can a quantum feature-map regression model reproduce simple and nonlinear functions with good generalization?
+    \item Can a quantum-parameterized inversion recover the known parameters of a synthetic gravity-radiometric model?
+    \item What changes are required before a synthetic inversion model can be applied to real field data?
+    \item Does joint use of gravity and radiometric observations improve the interpretability of a faulted-basin model?
+    \item Can a set of local 10 km inversions be combined to provide a useful first-order interpretation of a complete 30 km profile?
+\end{enumerate}
+
 \subsection{Organization of the Work}
 The work is divided into four computational stages:
 \begin{enumerate}
@@ -112,6 +161,59 @@ The work is divided into four computational stages:
     \item \textbf{Stage 2: Real-Data 10 km Inversion.} The best 10 km field-data window is inverted after calibration.
     \item \textbf{Stage 3: Full-Profile Stitched Inversion.} Three independent 10 km inversions are combined to interpret the 30 km profile.
 \end{enumerate}
+
+\clearpage
+\section{Data, Assumptions, and Evaluation Criteria}
+\subsection{Data Channels Used in the Study}
+The project uses four profile-based data channels: gravity, potassium, uranium, and thorium. The gravity data are treated as Bouguer gravity before regional separation and as residual gravity during local inversion. The radiometric channels are used in their smoothed profile form. Since radiometric observations are near-surface measurements, they are not used to estimate deep density directly. Instead, they provide shallow constraints on contacts, enriched zones, and surface lithological changes.
+
+In the synthetic case, all channels are generated from the same known model. This makes it possible to calculate recovery error directly. In the real-data case, the observed channels come from field measurements along a 30 km profile. The real data require additional preprocessing because the raw Bouguer gravity contains regional structure and the radiometric signals contain short-wavelength variations.
+
+\subsection{Coordinate Convention}
+The horizontal profile coordinate is denoted by $x$. For local 10 km inversions, $x=0$ km represents the beginning of the selected window and $x=10$ km represents the end of that window. For the full-profile interpretation, the three local windows are placed into global coordinates: 0--10 km, 10--20 km, and 20--30 km. The vertical coordinate is plotted as elevation, with zero near the surface and negative values representing depth.
+
+This coordinate convention is used consistently in the geological figures. However, there is an important difference between local and global coordinates. A fault at 3 km in the first local window is also at 3 km globally, but a fault at 1.54 km in the second local window is at 11.54 km globally. This conversion is applied when producing the stitched Stage 3 interpretation.
+
+\subsection{Model Assumptions}
+The inversion model is intentionally simple. The main assumptions are:
+\begin{itemize}
+    \item the background host rock is treated as the reference density unit;
+    \item the dense body is represented by an effective positive density contrast;
+    \item the basin is represented by a lower-density unit bounded by a fault-like contact;
+    \item radiometric signals are controlled mainly by shallow compositional variations;
+    \item survey-specific scale and offset differences can be represented by linear calibration;
+    \item local 10 km windows can be interpreted independently for first-order profile analysis.
+\end{itemize}
+These assumptions reduce the number of unknowns and make the inversion stable. The cost is that the model cannot represent all possible geological complexity. Therefore, the recovered parameters should be understood as effective parameters that explain the measured responses within this model class.
+
+\subsection{Goodness-of-Fit Measures}
+The two main error measures used in the report are RMSE and $R^2$. The root mean square error is
+\begin{equation}
+    \mathrm{RMSE}
+    =
+    \sqrt{
+    \frac{1}{N}
+    \sum_{i=1}^{N}
+    \left(d_i^{\mathrm{obs}}-d_i^{\mathrm{pred}}\right)^2
+    } .
+\end{equation}
+RMSE has the same unit as the data channel, so it is easy to interpret physically. The coefficient of determination is
+\begin{equation}
+    R^2
+    =
+    1 -
+    \frac{
+    \sum_{i=1}^{N}
+    \left(d_i^{\mathrm{obs}}-d_i^{\mathrm{pred}}\right)^2
+    }{
+    \sum_{i=1}^{N}
+    \left(d_i^{\mathrm{obs}}-\bar{d}^{\mathrm{obs}}\right)^2
+    } .
+\end{equation}
+An $R^2$ value close to 1 indicates that the predicted response explains most of the variance in the observed data. In this project, $R^2$ is used mainly for comparing relative fit quality between different stages and data channels.
+
+\subsection{Interpretive Criteria}
+The final interpretation is based on more than numerical error. A model is considered satisfactory only if it satisfies four conditions. First, it must fit the observed gravity response with a small residual. Second, it must reproduce the main radiometric trends without requiring unrealistic oscillations. Third, the recovered density contrasts and depths must remain within plausible bounds. Fourth, the geometry must be geologically interpretable when displayed as a section. This combined criterion is necessary because inverse problems can produce mathematically good but geologically unreasonable solutions.
 
 \section{Geophysical Basis of the Study}
 \subsection{Gravity Anomaly and Density Contrast}
@@ -170,11 +272,42 @@ Here $g$ denotes gravity, $r_c$ denotes the radiometric response for channel $c$
 \end{equation}
 This calibration is particularly important for real data, where the model response and survey response may differ in sign, amplitude, or baseline.
 
+\subsection{Non-Uniqueness and Parameter Trade-Offs}
+Gravity inversion is non-unique because the same anomaly can often be produced by different combinations of density, depth, shape, and lateral extent. A deeper body with a larger density contrast may generate a response similar to a shallower body with a smaller density contrast. Similarly, the effect of a fault contact can trade off against the density contrast of the basin. This is one reason why the inversion is constrained by parameter bounds and why radiometric information is included.
+
+The radiometric channels do not remove all non-uniqueness, but they provide independent shallow information. For example, a gravity anomaly may indicate a contact, but the radiometric response can help determine whether that contact also corresponds to a near-surface compositional boundary. In the synthetic case, this joint behavior is controlled by the known model. In the real case, the radiometric channels are treated more cautiously because they are affected by surface processes.
+
+\subsection{Role of Geological Regularization}
+The model does not use formal smoothness regularization in the same way as a large grid-based inversion. Instead, regularization is introduced through geological parameterization. The basin has a controlled shape, the dense body is bounded, and the fault position is limited to a physically meaningful interval. This type of regularization is appropriate when the aim is to recover a small number of interpretable geological parameters rather than a high-dimensional density grid.
+
+This approach also reduces overfitting. If every cell density were allowed to vary independently, the model could fit noise in the data but would lose geological meaning. By using a compact parameter set, the inversion is forced to explain the data using broad structural features: a basin, a dense body, and a fault-like contact. The resulting model is less flexible, but more interpretable.
+
+\subsection{Meaning of Effective Density Contrast}
+The density contrasts reported in the real-data stages are effective contrasts. They are not direct measurements of rock density from samples. Several factors contribute to this interpretation. First, the model is 2.5D and uses simplified geometry. Second, the gravity response is calibrated by scale and offset terms. Third, the out-of-plane extent of the bodies is not independently known. For these reasons, the recovered density contrasts represent the values required by the adopted model to reproduce the observed residual gravity anomaly.
+
+Effective contrasts are still useful. They indicate the relative density pattern required by the field data and help distinguish dense zones from lower-density basin-like zones. However, a final geological interpretation would require comparison with independent information such as geological mapping, drilling, rock-property measurements, or seismic constraints.
+
+\clearpage
 \section{Quantum and Computational Framework}
 \subsection{Motivation for Quantum Methods}
 Quantum algorithms are of interest in inverse problems because many inverse problems involve high-dimensional search, nonlinear objective functions, and repeated forward evaluations. Current quantum computers are still limited by noise and qubit count, so the present work uses a hybrid quantum-classical approach. The quantum component is used either to generate nonlinear features for regression or to parameterize bounded model variables through quantum expectation values. The optimization and data handling remain classical.
 
 The purpose of using quantum methods in this project is therefore methodological. The study demonstrates how quantum feature maps and variational quantum circuits can be integrated into geophysical modeling workflows. It does not claim a computational speedup over classical inversion for the present problem size. Instead, it establishes a reproducible framework that can later be extended to quantum kernels, hardware execution, or larger hybrid models.
+
+\subsection{Basic Quantum-Circuit Elements}
+The quantum circuits used in this work are constructed from three types of operations: state preparation, parameterized rotations, and entangling gates. State preparation initializes the qubits in a known reference state, usually $|0\rangle^{\otimes n}$. Hadamard gates or rotation gates are then used to create superposition. Parameterized rotations such as $R_x(\theta)$, $R_y(\theta)$, and $R_z(\theta)$ introduce trainable or data-dependent angles. Entangling gates, such as CNOT gates, create correlations between qubits.
+
+After the circuit is applied, expectation values of Pauli observables are measured. A Pauli-Z expectation value has the form
+\begin{equation}
+    \langle Z_j \rangle =
+    \langle \psi(\boldsymbol{\theta}) | Z_j | \psi(\boldsymbol{\theta}) \rangle ,
+\end{equation}
+where $|\psi(\boldsymbol{\theta})\rangle$ is the final quantum state. Since the expectation value lies between -1 and 1, it can be safely mapped to a bounded physical interval. This property is useful for geophysical inversion because many parameters, such as density contrast and depth, must remain within realistic limits.
+
+\subsection{Why Quantum Feature Maps are Useful}
+A classical linear model can only fit linear combinations of its input features. A nonlinear problem therefore requires nonlinear features. Quantum feature maps provide one way to generate such features. When an input is encoded into a quantum circuit, the final expectation values can contain trigonometric and interaction terms that are nonlinear functions of the original input. If entangling gates are included, the resulting features can represent correlations between encoded variables.
+
+In this project, quantum feature maps are first tested on regression problems because regression provides a clear and measurable benchmark. If the feature map cannot learn controlled linear and cubic datasets, it would not be reasonable to use it in a more complex geophysical inverse problem. The regression stage therefore serves as a verification stage for the quantum-feature implementation.
 
 \subsection{Quantum Feature-Map Regression}
 In the regression stage, a scalar input $x$ is encoded into a quantum state $|\psi(x)\rangle$ by applying parameterized rotations and entangling gates. Measurements of Pauli-Z expectation values are then used as nonlinear features. A typical feature vector has the form
@@ -199,6 +332,19 @@ The weights are obtained using ridge regression:
 \end{equation}
 where $\Phi$ is the design matrix and $\alpha$ is the regularization parameter. This approach follows the general idea of quantum-enhanced feature spaces, in which nonlinear mappings are produced by quantum state preparation and measurement \cite{schuld2019,havlicek2019}.
 
+\subsection{Regression Algorithm Used in Stage 0}
+The quantum regression calculation follows a simple sequence. First, the synthetic dataset is generated. Second, the input values are normalized so that they can be encoded as rotation angles. Third, the quantum circuit is evaluated for each input point to produce expectation features. Fourth, a regularized least-squares solution is used to estimate the output weights. Finally, the model is evaluated separately on training and testing data. This separation is important because high training accuracy alone does not prove that the model has learned the underlying relationship.
+
+The algorithm may be summarized as:
+\begin{enumerate}
+    \item generate $N=100$ synthetic data points;
+    \item divide the dataset into 80 training points and 20 testing points;
+    \item encode each input into a quantum feature map;
+    \item measure expectation values and construct the design matrix;
+    \item solve the regularized linear system for readout weights;
+    \item calculate RMSE, MAE, and $R^2$ for both training and testing data.
+\end{enumerate}
+
 \subsection{Variational Quantum Parameterization}
 For the synthetic geophysical inversion, a variational quantum circuit is used as a parameter generator. The circuit consists of multiple qubits, parameterized rotation gates, and entangling layers. Pauli-Z expectation values are decoded into physical parameters:
 \begin{equation}
@@ -210,9 +356,33 @@ For the synthetic geophysical inversion, a variational quantum circuit is used a
 \end{equation}
 Since $\langle Z_j\rangle$ lies between $-1$ and $1$, the decoded parameter is automatically restricted to a prescribed physical interval. This is useful in geophysical inversion because the search space must exclude unrealistic density contrasts, fault positions, or depths. The variational circuit therefore acts as a constrained nonlinear parameterization of the inverse problem \cite{cerezo2021}.
 
+\subsection{Hybrid Quantum-Classical Inversion Loop}
+The geophysical inversion is hybrid because the quantum circuit and classical forward model are used together. The quantum circuit proposes bounded model parameters. The classical geophysical forward model then calculates gravity and radiometric responses for those parameters. The predicted responses are compared with the observed data through the objective function. A classical optimizer updates the circuit parameters and the process repeats until the loss is minimized.
+
+The loop can be described as:
+\begin{enumerate}
+    \item initialize variational circuit parameters;
+    \item evaluate quantum expectation values;
+    \item decode expectation values into geological parameters;
+    \item construct the geological model from the decoded parameters;
+    \item compute gravity and radiometric forward responses;
+    \item calibrate the predicted responses if real data are being used;
+    \item calculate the total joint misfit;
+    \item update the variational parameters using a classical optimizer;
+    \item repeat until convergence or until the maximum iteration count is reached.
+\end{enumerate}
+
+This loop is conceptually similar to other variational quantum algorithms. The quantum circuit does not replace the geophysical forward model. Instead, it supplies a structured parameterization for the inverse search. This distinction is important because the physical modeling remains grounded in gravity and radiometric principles.
+
 \subsection{Optimization and Uncertainty}
 The inversion objective is multimodal, so a single starting model may converge to a local minimum. To reduce this risk, Latin Hypercube Sampling is used to generate diverse initial models. The best solutions are then compared using the combined gravity-radiometric loss. After the optimum is obtained, Monte Carlo perturbation is used to estimate uncertainty. In each Monte Carlo realization, the observed data are perturbed within their noise level and the inversion is repeated or locally re-evaluated. The spread of recovered parameters provides an estimate of solution stability.
 
+\subsection{Classical Simulation of Quantum Circuits}
+The present implementation uses classical simulation of quantum circuits. This is appropriate for a project-scale study because it allows reproducible testing without requiring access to physical quantum hardware. The simulated circuits still follow the mathematical structure of quantum states, unitary operations, entanglement, and measurement expectation values. However, the runtime is determined by classical simulation cost, not by quantum-hardware execution.
+
+This distinction matters for interpretation. The project demonstrates a quantum-assisted formulation and workflow, but it does not demonstrate a hardware quantum speedup. A future hardware implementation would require noise-aware circuits, shot-based measurement, error mitigation, and careful comparison with classical baselines.
+
+\clearpage
 \section{Stage 0: Quantum Regression}
 \subsection{Purpose of the Regression Stage}
 Stage 0 was designed as a controlled preliminary test of the quantum regression framework. Before applying quantum methods to a geophysical inverse problem, it is necessary to verify that the implementation can generate quantum features, fit parameters, and evaluate performance on unseen data. Two functions were considered: a linear function and a cubic function. In both cases, 100 data points were generated and split into 80\% training data and 20\% testing data.
@@ -272,6 +442,7 @@ Testing  & 0.1015 & 0.0819 & 0.9938 \\
 \subsection{Interpretation of Stage 0}
 The regression experiments show that the feature-map implementation is able to reproduce both simple and nonlinear functions. The testing $R^2$ values remain close to the training values, indicating that the fitted models are not simply memorizing the training points. This result supports the use of quantum feature maps as nonlinear basis functions in later inverse modeling stages.
 
+\clearpage
 \section{Stage 1: Synthetic Model Training and Forward Modeling}
 \subsection{Synthetic Geological Model}
 Stage 1 uses a 10 km long and 2.5 km deep synthetic geological section. The model contains four units:
@@ -287,6 +458,16 @@ The synthetic target parameters were fault location $x_f=4500$ m, dense-body den
 The gravity response was calculated from the discretized density model. Each cell contributes to the anomaly according to its density contrast and geometric position relative to the observation points. The total anomaly is the sum of all cell contributions. Radiometric responses were generated by assigning K, U, and Th values to the geological units and smoothing the transitions to represent finite survey resolution.
 
 Noise was added to the synthetic observations in order to make the inversion more realistic. This is important because a noise-free synthetic inversion may appear successful even when the method is too sensitive for field use. The synthetic experiment therefore tests whether the method can recover the main parameters under controlled but imperfect conditions.
+
+\subsection{Synthetic Gravity Construction}
+The synthetic gravity curve is dominated by the combined effect of the dense body and the basin boundary. The dense body contributes a positive component, while the basin geometry modifies the longer-wavelength part of the anomaly. The fault position controls the lateral transition between the host rock and the basin unit. Because gravity is sensitive to both mass contrast and depth, the same curve can be affected simultaneously by the fault location, dense-body top, and density contrasts. This is why the synthetic inversion is a meaningful test rather than a simple curve-fitting exercise.
+
+The model is discretized on a regular profile-depth grid. Each grid cell is assigned a unit label and a density contrast. The forward calculation then converts the density model into a gravity anomaly at the observation points. The response is reported on a realistic mGal scale after the density scaling used in the v3 forward model. This scaling preserves the physical interpretation of the reported density contrasts while avoiding unrealistic anomaly magnitudes.
+
+\subsection{Synthetic Radiometric Construction}
+The radiometric curves are designed to represent a shallow compositional contrast across the geological contact. In the synthetic model, K, U, and Th values are lower on one side of the contact and higher on the other side, with small random noise added to simulate measurement variation. The radiometric response is not calculated from deep prism density. Instead, it is linked to the near-surface unit assignment because gamma-ray measurements are shallow.
+
+The three radiometric channels are useful because they respond differently to the same geological contact. If all three channels change near the same distance as the gravity transition, the inversion receives stronger evidence for a real geological boundary. If the channels disagree, the inversion must balance shallow geochemical information against deeper density information.
 
 \subsection{Inversion Parameters and Quantum Decoding}
 The inversion solves for four parameters:
@@ -340,6 +521,10 @@ Dense top depth & -1000 m & -960 m & 4.0\% \\
 \subsection{Interpretation of Stage 1}
 The synthetic experiment demonstrates that the inversion can recover the main geological structure when the forward model and target data are generated from the same physical assumptions. The fault position is the least accurate of the four primary parameters, with an error of approximately 6.2\%. This is expected because the gravity anomaly is affected by both the fault boundary and the dense body, so small trade-offs between geometry and density can produce similar responses. The density contrasts and dense-body top depth are recovered more accurately, with errors below 5\%. This stage therefore provides a controlled validation of the inversion framework before applying it to field data.
 
+\subsection{Lessons from the Synthetic Stage}
+The synthetic stage establishes three important lessons. First, the inversion is capable of recovering the main parameters when the forward model is appropriate. Second, the gravity response alone is not sufficient to uniquely determine every geometrical detail; radiometric information improves the constraint on the shallow contact. Third, uncertainty estimates are necessary because several nearby parameter combinations can produce similar data fits. These lessons directly motivated the calibrated real-data workflow in Stage 2.
+
+\clearpage
 \section{Stage 2: Real-Data Testing on a 10 km Window}
 \subsection{Reason for Calibration}
 The first direct application of the synthetic inversion to the real profile was not satisfactory. The reason is that the real data do not share the exact amplitude scale, polarity, background trend, or radiometric behavior assumed in the synthetic model. A field Bouguer anomaly contains regional components that are unrelated to the local 10 km model. In addition, radiometric data are influenced by soil cover, weathering, topographic exposure, and local enrichment. Therefore, the real-data inversion required a calibrated workflow rather than a direct transfer of the synthetic model.
@@ -357,6 +542,11 @@ The calibrated workflow includes:
 \subsection{Preprocessing of the Field Profile}
 The complete field profile is approximately 30 km long. A robust degree-2 polynomial was fitted to the Bouguer anomaly and subtracted to obtain the residual anomaly. The 0--10 km window was selected as the best single-window inversion target. K, U, and Th data were smoothed and resampled onto the model grid. The local model coordinate system was then defined from 0 to 10 km within the selected window.
 
+\subsection{Window Selection Strategy}
+The 10 km window was not chosen only by visual inspection. The profile was screened by comparing local anomaly shape, radiometric behavior, and compatibility with the model template. Both normal and reversed profile orientations were considered. Reversal is useful because a local geological structure may produce an anomaly with opposite left-right orientation compared with the synthetic template. The best window is therefore the one that provides the most stable and physically meaningful joint fit after calibration.
+
+The 0--10 km window was selected because it contains a clear gravity residual transition and a strong radiometric anomaly that can be represented by the calibrated model. This interval also gave the strongest combined fit after optimization. The result should be interpreted as the best local window for applying the model, not as proof that the remaining 20 km of the profile are geologically unimportant.
+
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/stage2_real_full_profile_trend.png}
@@ -365,6 +555,11 @@ The complete field profile is approximately 30 km long. A robust degree-2 polyno
 
 \subsection{Recovered 10 km Geological Model}
 The best 10 km inversion selected the 0--10 km window without profile reversal. The recovered model places the fault near 1.50 km in local coordinates. The effective dense-body contrast is 0.2822 g/cc, the effective basin contrast is 0.0398 g/cc, and the dense-body top depth is approximately -2253 m. These values should be interpreted as calibrated effective model parameters rather than direct laboratory measurements. The reason is that the inversion includes survey calibration and simplified geometry, so the recovered contrasts represent the density differences required by the forward model to fit the observed residual anomaly.
+
+\subsection{Real-Data Calibration Parameters}
+The calibration step allows the predicted model response to be compared with measured data on the correct scale. For gravity, this means that the modeled residual response can be multiplied by a scale factor and shifted by an offset. For radiometric channels, the same idea is applied independently to K, U, and Th. This does not remove the need for a physically meaningful model; it simply accounts for survey-specific amplitude and baseline differences.
+
+The calibration is especially important for the real-data stage because the synthetic model was not created using the same acquisition conditions as the field profile. Without calibration, the optimizer may try to compensate for amplitude mismatch by selecting unrealistic density or depth parameters. With calibration, the inversion can focus on matching the shape and relative position of the anomaly while still preserving geophysical meaning.
 
 \begin{figure}[H]
 \centering
@@ -418,11 +613,20 @@ Th $R^2$ / RMSE & 0.891 / 2.541 \\
 \subsection{Interpretation of Stage 2}
 The calibrated 10 km inversion is the most internally consistent real-data result because it uses one local coordinate system, one local calibration, and one selected anomaly window. The strong gravity and radiometric statistics suggest that the model captures the dominant geological signal in the 0--10 km interval. However, because the inversion is simplified to a 2.5D geometry and uses effective contrasts, the recovered density values should be interpreted cautiously. The main reliable outputs are the anomaly geometry, the approximate fault location, the relative density contrast pattern, and the consistency between gravity and radiometric response.
 
+\subsection{Reliability of the 10 km Result}
+The reliability of the Stage 2 result comes from the agreement between independent data channels. The gravity curve constrains the density distribution and the position of the major transition. The radiometric curves support a shallow enrichment pattern in approximately the same interval. The fit statistics are high for all four channels, which indicates that the model is not fitting one dataset at the expense of another. This is the main reason the 10 km calibrated inversion is considered the strongest individual real-data result.
+
+\clearpage
 \section{Stage 3: Full 30 km Profile Through Three-Window Stitching}
 \subsection{Need for Window-Based Extension}
 The real-data forward model was designed for a 10 km local section. Extending the same model directly to the full 30 km profile would require a larger geometry, additional bodies, stronger regularization, and a more complex treatment of the regional field. Instead, the full profile was interpreted through three independent 10 km windows: 0--10 km, 10--20 km, and 20--30 km. Each window was inverted separately, and the recovered sections were then placed in their global distance positions.
 
 This procedure produces a stitched interpretation rather than a single globally coupled inversion. The distinction is important. In a global inversion, all windows would be solved simultaneously with continuity constraints across window boundaries. In the present approach, each window has its own calibration and local optimum. Therefore, the stitched section is useful for profile-scale visualization, but discontinuities near 10 km and 20 km should not be overinterpreted unless supported by independent geological evidence.
+
+\subsection{Reason for Using Three Equal Windows}
+The full profile length is approximately 30 km, and the calibrated inversion model is designed for a 10 km domain. Dividing the profile into three equal windows preserves the length scale for which the model was tested. It also keeps the number of unknown parameters small in each inversion. If the entire profile were inverted at once using the same simple model, the model would be forced to explain several distinct anomaly regimes with one set of parameters, which would be geologically unrealistic.
+
+The windowed strategy is therefore a practical compromise. It allows the model to adapt to local changes while still producing a unified final display. The main drawback is that window boundaries may introduce discontinuities because adjacent windows are not solved with a continuity constraint.
 
 \begin{figure}[H]
 \centering
@@ -533,6 +737,12 @@ Window & Loss & Reversed & Fault & $\rho_d$ & $\rho_b$ & Dense top \\
 \subsection{Interpretation of Stage 3}
 The stitched full-profile result provides a broader geological picture than the single-window result. The first window corresponds to the strongest and most stable fit. The second and third windows contain more complicated radiometric behavior and have higher losses, which suggests that a single local body-and-basin model is less complete in these intervals. Nevertheless, the unified fit remains quantitatively strong and the stitched model provides a coherent first-order interpretation of the 30 km profile.
 
+\subsection{Shortcomings of the Stitched Approach}
+The stitched approach is useful but not equivalent to a fully coupled inversion. The most important shortcomings are boundary effects, independent calibration in each window, and the absence of continuity constraints. A geological body that crosses a window boundary may be split into two separate local interpretations. Similarly, a regional trend error may affect one window differently from another. These limitations should be considered when using the stitched result for geological conclusions.
+
+Despite these shortcomings, the stitched profile is valuable because it summarizes the complete line in a consistent visual framework. It also identifies which intervals are well represented by the model and which intervals may require additional geological complexity.
+
+\clearpage
 \section{Computational Implementation}
 \subsection{Project Structure}
 The computational work is organized into four stage folders:
@@ -550,6 +760,7 @@ The geophysical inversion stages are suitable for execution on the Param Shakti 
 
 The regression stage is lightweight and depends only on standard numerical libraries. The geophysical quantum inversion stage uses PennyLane for the variational quantum circuit. If an optimized simulator backend is unavailable, the code can use a default qubit simulator. This design makes the workflow portable across local computers and HPC environments.
 
+\clearpage
 \section{Discussion}
 \subsection{Geophysical Significance}
 The results show that calibration is essential when transferring a synthetic inversion framework to field data. The synthetic model validates the forward and inverse formulation under known conditions, but the field profile contains regional gravity, survey-specific scaling, noise, and shallow radiometric effects. Once these factors are included, the inversion produces much more satisfactory results.
@@ -576,10 +787,142 @@ These limitations do not invalidate the results, but they define the correct lev
 \subsection{Possible Future Work}
 Future improvements may include a globally coupled 30 km inversion with continuity constraints, a more detailed 3D density model, use of petrophysical constraints from field or laboratory measurements, and a more rigorous Bayesian uncertainty analysis. On the quantum side, the workflow can be extended to quantum kernels, amplitude encoding, hardware-executed circuits, and hybrid optimizers designed specifically for noisy quantum devices.
 
+\clearpage
 \section{Conclusion}
 This work developed and tested a four-stage framework for joint gravity and radiometric forward modeling and geophysical inversion using hybrid quantum-classical methods. Stage 0 confirmed that quantum feature-map regression can learn controlled linear and cubic relationships with high testing accuracy. Stage 1 validated the synthetic geophysical inversion by recovering the main parameters of a known faulted-basin model. Stage 2 showed that real field data require regional-trend removal, survey calibration, and an improved radiometric response model; after these modifications, the selected 10 km inversion produced a strong gravity fit and high radiometric agreement. Stage 3 extended the interpretation to the full 30 km profile through three independent 10 km inversions and produced a unified stitched geological section.
 
 The main conclusion is that a physically calibrated, survey-aware inversion strategy is necessary for real geophysical data. Quantum feature maps and variational quantum parameterization can be integrated into this workflow in a structured way, providing a controlled hybrid framework for nonlinear inverse modeling. The resulting models are not unique geological solutions, but they provide quantitatively supported and geologically interpretable explanations of the gravity and radiometric observations.
+
+\clearpage
+\appendix
+\section{Detailed Methodological Notes}
+\subsection{Forward-Model Construction}
+The forward-model construction begins with a geological parameter vector. The parameter vector is converted into a gridded geological section by assigning each cell to one of the model units: host rock, dense body, basin, or soil. The cell labels are then converted into density contrasts for gravity modeling and into K, U, and Th values for radiometric modeling. This two-step process is useful because it keeps the geology and the physics conceptually separate. First, the geometry is defined. Second, physical properties are assigned.
+
+For the gravity calculation, the density contrast grid is passed to the prism-based forward model. The predicted anomaly at each observation point is the sum of all cell contributions. In practice, the response is normalized and scaled so that the synthetic anomaly has realistic mGal magnitude. This is necessary because a simple 2.5D prism model can otherwise produce amplitudes that are too large for the field scale. The scaling does not change the qualitative relationship between density, depth, and anomaly shape, but it makes the inversion numerically stable.
+
+For radiometric modeling, the response is generated mainly from near-surface properties. This follows the physical fact that gamma-ray signals are strongly attenuated with depth. The radiometric model therefore emphasizes shallow lithology and surface enrichment rather than deep density structure. In the synthetic stage, this is represented by smooth changes across the geological contact. In the real-data stage, additional enrichment terms are included to reproduce localized field peaks.
+
+\subsection{Objective Function Design}
+The objective function is designed to balance gravity and radiometric information. If gravity receives too much weight, the inversion may fit the density anomaly while ignoring shallow geochemical information. If radiometrics receive too much weight, the model may overfit shallow surface variations and lose the deeper gravity constraint. The chosen objective therefore normalizes each channel and combines them with controlled weights.
+
+For real data, calibration is included inside the objective. This means that the predicted model response is first transformed by a linear scale and offset before the residual is calculated. The purpose of this calibration is not to artificially improve the fit, but to account for differences between the idealized forward model and the real survey response. In field data, a model that has the correct anomaly shape but wrong sign or baseline would otherwise be rejected, even though the geological structure may be meaningful.
+
+\subsection{Monte Carlo Uncertainty}
+Monte Carlo uncertainty is used to examine how sensitive the recovered parameters are to data perturbations. In each realization, small random perturbations are added to the data or model evaluation, and the inversion result is re-estimated or re-evaluated. The standard deviation of recovered values is then reported as an uncertainty estimate. This approach is not a full Bayesian uncertainty analysis, but it provides a practical measure of local stability.
+
+The uncertainty values should be interpreted as conditional on the adopted model class. They show how stable the parameters are if the model structure is accepted. They do not include uncertainty due to choosing a different geological model, using a different regional trend, or applying a fully three-dimensional geometry.
+
+\section{Algorithmic Workflows}
+\subsection{Stage 0 Regression Workflow}
+The regression workflow provides a compact example of the hybrid quantum-classical structure. The quantum circuit is used to generate nonlinear features, while the final readout is solved classically. This is computationally efficient and also easy to validate because the true linear and cubic functions are known.
+
+\begin{enumerate}
+    \item Generate 100 input-output pairs from the chosen target function.
+    \item Add controlled random noise to the output values.
+    \item Split the dataset into 80 training points and 20 testing points.
+    \item Normalize input coordinates for use as quantum rotation angles.
+    \item Evaluate the quantum feature map for each input.
+    \item Construct a design matrix using classical and quantum features.
+    \item Solve the ridge-regression normal equation.
+    \item Evaluate the trained model on both training and testing points.
+    \item Report RMSE, MAE, and $R^2$.
+\end{enumerate}
+
+\subsection{Stage 1 Synthetic Inversion Workflow}
+The synthetic inversion workflow is used for controlled validation:
+\begin{enumerate}
+    \item Define the true geological model and physical parameters.
+    \item Generate synthetic gravity and radiometric observations.
+    \item Add realistic noise to the observations.
+    \item Generate multiple starting points using Latin Hypercube Sampling.
+    \item For each starting point, initialize the variational quantum circuit.
+    \item Decode quantum expectation values into model parameters.
+    \item Evaluate gravity and radiometric forward responses.
+    \item Compute the joint misfit.
+    \item Optimize the variational parameters.
+    \item Select the lowest-loss solution.
+    \item Compare recovered parameters with true values.
+    \item Estimate uncertainty using Monte Carlo perturbation.
+\end{enumerate}
+
+\subsection{Stage 2 Real-Data 10 km Workflow}
+The real-data 10 km workflow adds preprocessing and calibration:
+\begin{enumerate}
+    \item Read the full real-data profile.
+    \item Fit and remove the robust regional Bouguer trend.
+    \item Smooth and resample K, U, and Th observations.
+    \item Screen possible 10 km windows.
+    \item Test both normal and reversed profile orientations.
+    \item Run the calibrated joint inversion for candidate windows.
+    \item Select the best window using combined fit and geological plausibility.
+    \item Report the recovered section, gravity fit, radiometric fits, and uncertainty.
+\end{enumerate}
+
+\subsection{Stage 3 Full-Profile Workflow}
+The full-profile workflow repeats the calibrated inversion in three windows:
+\begin{enumerate}
+    \item Divide the 30 km profile into three 10 km intervals.
+    \item Apply the Stage 2 inversion workflow independently to each interval.
+    \item Convert local window coordinates into global profile coordinates.
+    \item Place the three recovered sections side by side.
+    \item Merge the predicted gravity and radiometric responses.
+    \item Calculate unified full-profile fit statistics.
+    \item Plot both individual window results and the stitched interpretation.
+\end{enumerate}
+
+\section{Interpretation Guide for the Result Figures}
+\subsection{Reading the Geological Sections}
+The geological sections use color to distinguish units. The host rock represents the background. The dense body is shown separately because it is the main positive density-contrast feature. The basin unit represents the lower-density side of the model, and the red dashed line marks the recovered fault or main contact position. The topographic line is shown at the surface for visual reference.
+
+When reading these figures, the most important features are the position of the fault, the lateral extent of the dense body, and the depth to the top of the dense body. Small blocky edges are expected because the model is discretized on a grid. These blocky edges should not be interpreted as real sharp geological steps at the cell scale.
+
+\subsection{Reading the Gravity Fits}
+The gravity plots compare observed residual gravity with the modeled response. A good fit means that the model reproduces the main shape, amplitude, and turning points of the residual anomaly. In Stage 2, the excellent gravity $R^2$ indicates that the 10 km model explains the selected anomaly very well. In Stage 3, the unified gravity fit remains strong, but the fit is more difficult because three local anomaly regimes are combined.
+
+The shaded difference curve represents model-observation mismatch. A small and smoothly distributed mismatch is generally acceptable. A large systematic mismatch would indicate that the model geometry is missing an important geological feature.
+
+\subsection{Reading the Radiometric Fits}
+The radiometric plots compare observed and modeled K, U, and Th. These channels are not expected to behave exactly like gravity because they are shallow and more affected by surface conditions. In the synthetic stage, the radiometric channels mainly test whether the modeled contact produces the correct step-like response. In the real-data stages, they test whether the model can reproduce localized enrichment peaks and broad compositional trends.
+
+The radiometric fits are especially useful for checking whether the recovered fault or contact position is supported by shallow geochemical evidence. If gravity and radiometric transitions occur in similar parts of the profile, the geological interpretation becomes more convincing.
+
+\section{Reproducibility Notes}
+\subsection{Software Organization}
+The project is organized so that each stage can be run independently. This is important because different stages have different computational requirements. The regression stage is lightweight. The synthetic inversion is moderate in cost. The real-data inversion and stitched full-profile workflow are more expensive because they include window screening, multi-start optimization, and uncertainty estimation.
+
+Each stage contains source code, input data or generated data, result plots, and run scripts. This structure makes it possible to reproduce one stage without rerunning the entire project. It also reduces confusion between synthetic results and real-data results.
+
+\subsection{Execution Environment}
+The code is intended to run on a normal local computer for light tests and on Param Shakti for heavier inversion runs. On a local machine, quick runs are useful for checking file paths, plotting, and basic functionality. On Param Shakti, larger maximum iteration counts, population sizes, and Monte Carlo sample counts can be used. This separation between local testing and HPC execution is practical because it allows errors to be caught before submitting longer jobs.
+
+\subsection{Recommended Verification Steps}
+Before accepting a final run, the following checks should be made:
+\begin{itemize}
+    \item confirm that the selected input data file is the intended real profile;
+    \item verify that the regional trend and residual gravity are plotted correctly;
+    \item check that the inversion window coordinates match the intended profile interval;
+    \item compare gravity and radiometric $R^2$ values across channels;
+    \item inspect the geological section for unrealistic geometry;
+    \item compare Monte Carlo uncertainty with the reported best-fit parameters;
+    \item confirm that all final plots correspond to the same run and parameter set.
+\end{itemize}
+
+\section{Scientific Interpretation and Future Extension}
+\subsection{Scientific Meaning of the Final Model}
+The final model should be interpreted as a constrained geophysical explanation of the observed profiles. It is not a unique geological truth. The dense bodies indicate regions where the gravity data require a positive density contribution. The basin units indicate lower-density regions or sedimentary/weathered zones. The fault lines mark the main lateral transitions required by the model. The radiometric fits indicate whether shallow K, U, and Th behavior supports those transitions.
+
+The strongest result is the calibrated 10 km inversion because it has a clear anomaly, strong gravity fit, strong radiometric fit, and a single local calibration. The full 30 km stitched model is useful for regional visualization, but it should be treated as a first-order profile interpretation.
+
+\subsection{Path Toward a Global 30 km Inversion}
+A future global inversion could solve the entire 30 km profile at once. This would require a larger model with more geological bodies and continuity constraints. The objective function would need to include regularization terms that penalize unrealistic jumps between neighboring regions. The regional gravity separation would also need to be coupled more carefully with the inversion, because a global model would respond to both local and longer-wavelength density variations.
+
+Such a global inversion would be more powerful but also more difficult. It would contain more unknowns, a larger non-unique search space, and a higher computational cost. The stitched Stage 3 result can therefore be viewed as a practical intermediate step between local inversion and full global inversion.
+
+\subsection{Path Toward Quantum-Hardware Experiments}
+The quantum part of the project can be extended toward hardware experiments in several steps. First, the circuits should be reduced to shallow depth to limit noise. Second, expectation values should be estimated with finite measurement shots instead of exact simulation. Third, error mitigation or robust optimization should be introduced. Fourth, the results should be compared with classical baselines using the same number of model evaluations.
+
+If these steps are implemented, the project can move from quantum-inspired or quantum-simulated inversion toward genuine quantum-hardware-assisted inversion. Even then, the main criterion should remain geophysical validity. A quantum algorithm is useful only if it improves or usefully reformulates the physical inverse problem.
 
 \clearpage
 \bibliographystyle{plain}
