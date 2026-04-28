@@ -1,0 +1,28 @@
+\begin{thebibliography}{1}
+
+\bibitem{blakely1995}
+Richard~J. Blakely.
+\newblock {\em Potential Theory in Gravity and Magnetic Applications}.
+\newblock Cambridge University Press, 1995.
+
+\bibitem{cerezo2021}
+M.~Cerezo et~al.
+\newblock Variational quantum algorithms.
+\newblock {\em Nature Reviews Physics}, 3:625--644, 2021.
+
+\bibitem{havlicek2019}
+Vojtech Havlicek et~al.
+\newblock Supervised learning with quantum-enhanced feature spaces.
+\newblock {\em Nature}, 567:209--212, 2019.
+
+\bibitem{schuld2019}
+Maria Schuld and Nathan Killoran.
+\newblock Quantum machine learning in feature hilbert spaces.
+\newblock {\em Physical Review Letters}, 122(4):040504, 2019.
+
+\bibitem{telford1990}
+W.~M. Telford, L.~P. Geldart, and R.~E. Sheriff.
+\newblock {\em Applied Geophysics}.
+\newblock Cambridge University Press, 2 edition, 1990.
+
+\end{thebibliography}
